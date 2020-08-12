@@ -60,7 +60,7 @@ export class MigrationManager{
 
         if(!filename.endsWith('.sql')) {
             log.error(`Migration file name must end with .sql`);
-            throw 'Invalid migration file name';
+            throw 'Invalid migration file extension';
         }
 
         const cleanName = path.basename(filename, '.sql');
@@ -127,7 +127,7 @@ export class MigrationManager{
 
     async loadMigrationsInFileSystem(): Promise<MigrationUnit[]>{
 
-        const migrationsPath = path.join(this.appConfig.schemaPath, this.dataSource.driverName);
+        const migrationsPath = this.appConfig.schemaPath;
 
         if(!fs.existsSync(migrationsPath)) {
             log.error(`The migrations folder was not found: ${migrationsPath}`);

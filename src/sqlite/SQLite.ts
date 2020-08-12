@@ -14,17 +14,22 @@ import {SchemaOf} from "layer-validation";
 
 const log = new Logger('sqlite');
 
+export interface SQLiteConfig{
+    callback?: () => void;
+    echoSQL?: boolean;
+}
+
 export class SQLite implements DataSource{
 
     readonly driverName = 'sqlite';
     readonly db: Database;
 
-    constructor(readonly path: string, callback?: () => void){
-        this.db = new Database(path, callback);
+    constructor(readonly path: string, readonly config: SQLiteConfig = {}){
+        this.db = new Database(path, config.callback);
     }
 
     private sqlOut(sql: string){
-        if(process.env.MOTHER_SQL_OUT === 'yes') {
+        if(this.config.echoSQL === true) {
             log.debug(`[SQL] ${sql}`);
         }
     }
@@ -57,7 +62,7 @@ export class SQLite implements DataSource{
     }
 
     async delete<T>(data: T, schema: SchemaOf<T>, mapper: EntityMapper<T>): Promise<void> {
-        return Promise.reject();
+        return Promise.reject(new Error('Not implemented'));
     }
 
     async createTable(table: DataTableDefinition): Promise<any> {
