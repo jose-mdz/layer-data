@@ -19,8 +19,8 @@ export class SQLite implements DataSource{
     readonly driverName = 'sqlite';
     readonly db: Database;
 
-    constructor(readonly path: string){
-        this.db = new Database(path);
+    constructor(readonly path: string, callback?: () => void){
+        this.db = new Database(path, callback);
     }
 
     private sqlOut(sql: string){

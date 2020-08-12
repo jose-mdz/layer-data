@@ -1,0 +1,23 @@
+{
+  "all": true,
+  "cache": false,
+  "extension": [".ts", ".d.ts"],
+  "report-dir": "./.coverage",
+  "temp-dir": "./.coverage/.nyc_output",
+  "include": [
+    "src/**"
+  ],
+  "exclude": [
+    "**/*.d.ts",
+    "./src/index.ts"
+  ],
+  "check-coverage": false,
+  "require": [
+    "source-map-support/register",
+    "ts-node/register"
+  ],
+  "reporter": [
+    "html",
+    "text"
+  ]
+}

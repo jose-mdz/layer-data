@@ -5,7 +5,7 @@ export declare class SQLite implements DataSource {
     readonly path: string;
     readonly driverName = "sqlite";
     readonly db: Database;
-    constructor(path: string);
+    constructor(path: string, callback?: () => void);
     private sqlOut;
     getClosestType(type: DataColumnType): string;
     insert<T>(data: T, schema: SchemaOf<T>, mapper: EntityMapper<T>): Promise<T>;

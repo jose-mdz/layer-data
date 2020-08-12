@@ -8,7 +8,10 @@
     "lib/"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "test": "nyc mocha -u bdd -r ts-node/register --recursive test/**/*.ts",
+    "coverage": "nyc npm test",
+    "coveralls": "nyc report --reporter=text-lcov | coveralls"
   },
   "repository": {
     "type": "git",
@@ -21,12 +24,19 @@
   },
   "homepage": "https://github.com/menendezpoo/layer-data#readme",
   "dependencies": {
-    "@types/sqlite3": "^3.1.6",
-    "layer-logging": "0.0.3",
+    "layer-logging": "0.0.4",
     "layer-validation": "0.0.3",
     "sqlite3": "^5.0.0"
   },
   "devDependencies": {
-    "@types/node": "^14.0.27"
+    "@types/chai": "^4.2.12",
+    "@types/mocha": "^8.0.2",
+    "@types/node": "^14.0.27",
+    "@types/sqlite3": "^3.1.6",
+    "chai": "^4.2.0",
+    "mocha": "^8.1.1",
+    "nyc": "^15.1.0",
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.7"
   }
 }
