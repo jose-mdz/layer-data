@@ -22,6 +22,12 @@ export interface MigrationConfig {
 export declare class MigrationManager {
     readonly dataSource: DataSource;
     readonly appConfig: MigrationConfig;
+    static getChecksum(file_name: string, contents: string): string;
+    static breakIfInvalidFileNameForMigration(file_name: string): void;
+    static getNameAndVersionFromFileName(file_name: string): {
+        version: string;
+        name: string;
+    };
     static migrationFromFile(filename: string, contents: string): MigrationUnit;
     constructor(dataSource: DataSource, appConfig: MigrationConfig);
     private migrationTablePresent;
@@ -30,7 +36,7 @@ export declare class MigrationManager {
     loadMigrationsInDatabaseTable(): Promise<MigrationUnit[]>;
     loadMigrationsInFileSystem(): Promise<MigrationUnit[]>;
     applyMigration(migration: MigrationUnit): Promise<void>;
-    compareMigrations(migrationsDb: MigrationUnit[], migrationsFs: MigrationUnit[]): Promise<MigrationUnit[]>;
+    getMigrationsToBeApplied(migrationsDb: MigrationUnit[], migrationsFs: MigrationUnit[]): Promise<MigrationUnit[]>;
     applyMigrations(migrations: MigrationUnit[]): Promise<void[]>;
     makeSureMigrationsAreUpToDate(): Promise<DataSource>;
 }

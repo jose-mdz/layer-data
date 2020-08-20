@@ -133,4 +133,16 @@ describe(`sqlite/SQLite`, function () {
         // TODO: Implement
     });
 
+    it('should read multiple records', function () {
+
+    });
+
+    it('should update multiple records', function () {
+
+    });
+
+    it('should delete multiple records', function () {
+        
+    });
+
 });
