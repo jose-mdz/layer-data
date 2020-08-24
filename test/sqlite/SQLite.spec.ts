@@ -78,11 +78,6 @@ describe(`sqlite/SQLite`, function () {
         assert.strictEqual(all.length, 1);
     });
 
-    it('should insert a non-autoincrement record', function () {
-        // TODO: Implement
-
-    });
-
     it('should update a record', async function () {
         const p = await repo.insert({id: 0, name: randomWord() } );
         const newName = randomWord();
