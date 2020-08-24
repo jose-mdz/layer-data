@@ -37,6 +37,6 @@ export declare class MigrationManager {
     loadMigrationsInFileSystem(): Promise<MigrationUnit[]>;
     applyMigration(migration: MigrationUnit): Promise<void>;
     getMigrationsToBeApplied(migrationsDb: MigrationUnit[], migrationsFs: MigrationUnit[]): Promise<MigrationUnit[]>;
-    applyMigrations(migrations: MigrationUnit[]): Promise<void[]>;
+    applyMigrations(migrations: MigrationUnit[]): Promise<void>;
     makeSureMigrationsAreUpToDate(): Promise<DataSource>;
 }

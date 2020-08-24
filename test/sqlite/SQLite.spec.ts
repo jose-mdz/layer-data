@@ -5,6 +5,8 @@ import {SchemaOf} from "layer-validation";
 import {DataSource, EntityMapper} from "../../src/DataSource";
 import {MigrationManager} from "../../src/MigrationManager";
 import {EntityRepository} from "../../src/EntityRepository";
+import {Logger} from "layer-logging";
+import {randomWord} from "../TestUtils";
 
 describe(`sqlite/SQLite`, function () {
 
@@ -35,33 +37,6 @@ describe(`sqlite/SQLite`, function () {
         }
     }
 
-    function randomInt(min: number, max: number): number {
-        return Math.floor(Math.random() * (max - min + 1) + min);
-    }
-
-    function randomChar() {
-        return Math.random() > 0.5 ? String.fromCharCode(randomInt(65, 90)) : String.fromCharCode(randomInt(97, 122));
-    }
-
-    function randomWord(length: number = 10) {
-        return new Array(length).fill('').map(c => randomChar()).join('');
-    }
-
-    function times(n: number, callback: (i: number) => void): any[] {
-
-        if(isNaN(n) || !isFinite(n) || n <= 0) {
-            return [];
-        }
-
-        const result: any[] = [];
-
-        for(let i = 0; i < n; i++){
-            result.push(callback(i));
-        }
-
-        return result;
-    }
-
     let dbPath: string = `sqlite-tests.db`;
     let db: SQLite;
     let repo: PersonRepo;
@@ -84,7 +59,27 @@ describe(`sqlite/SQLite`, function () {
         }
     });
 
+    before(function () {
+        Logger.voidAllConsumers();
+    });
+
+    after(function () {
+        Logger.restoreConsumersToDefaults();
+    });
+
     it('should create a database file on connection', function () {
+        const file = `${randomWord()}.db`;
+
+        return new Promise(((resolve) => {
+            new SQLite(file, {callback: () => {
+                assert.isTrue(fs.existsSync(file));
+                fs.unlinkSync(file);
+                resolve();
+            }});
+        }));
+    });
+
+    it('should instantiate SQLite with default config', function () {
         const file = `${randomWord()}.db`;
 
         return new Promise(((resolve) => {
@@ -98,6 +93,7 @@ describe(`sqlite/SQLite`, function () {
 
     it('should list tables', function () {
         // TODO: Implement
+
     });
 
     it('should insert an autoincrement record', async function () {
@@ -125,8 +121,88 @@ describe(`sqlite/SQLite`, function () {
         assert.strictEqual(persisted.name, newName);
     });
 
+    it('should fail queriesRun on defective sql', async     function () {
+        let flag = false;
+
+        try{
+            await db.queriesRun("foo foo; foo foo;");
+        }catch(e){
+            flag = true;
+        }
+
+        assert.isTrue(flag);
+    });
+
+    it('should fail queryRun on defective sql', async function () {
+        let flag = false;
+
+        try{
+            await db.queryRun("foo foo");
+        }catch(e){
+            flag = true;
+        }
+
+        assert.isTrue(flag);
+    });
+
+    it('should fail on queryData', async function () {
+        let flag = false;
+
+        try{
+            await db.queryData("foo foo");
+        }catch(e){
+            flag = true;
+        }
+
+        assert.isTrue(flag);
+    });
+
+    it('should fail on queryEntity with bad query', async function () {
+        let flag = false;
+
+        try{
+            await db.queryEntity( PersonEntitySchema, "foo foo");
+        }catch(e){
+            flag = true;
+        }
+
+        assert.isTrue(flag);
+    });
+
+    it('should output sql', async function () {
+        const token = randomWord();
+        const logs: any[] = [];
+        const buffer = Logger.consumers.TRACE;
+        Logger.consumers.TRACE = data => logs.push(data);
+        db.config.echoSQL = true;
+        await db.queryData(`SELECT '${token}'`);
+        db.config.echoSQL = false;
+        Logger.consumers.TRACE = buffer;
+        assert.isTrue(String(logs[0]).indexOf(token) > 0);
+    });
+
+    it('should output sql when error', async function () {
+        const token = randomWord();
+        const logs: any[] = [];
+        const buffer = Logger.consumers.ERROR;
+        Logger.consumers.ERROR = data => logs.push(data);
+        db.config.echoErrorSQL = true;
+        try{
+            await db.queryData(`SELECT ${token}`);
+        }catch(e){}
+        db.config.echoErrorSQL = false;
+        Logger.consumers.ERROR = buffer;
+        assert.isTrue(String(logs[0]).indexOf(token) > 0);
+    });
+
     it('should delete a record', async function () {
-        // TODO: Implement
+        const p = await repo.insert({id: 0, name: randomWord() });
+        assert.strictEqual(p.id, 1);
+
+        await repo.delete(p);
+
+        const all = await repo.getAll();
+        assert.strictEqual(all.length, 0);
     });
 
     it('should echo SQL on logs if config allows', function () {

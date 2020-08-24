@@ -6,9 +6,9 @@ import {
     PreparedStatement
 } from "./DataSource";
 
-export class SqlGenerator {
+export abstract class SqlGenerator<T extends DataSource> {
 
-    constructor(readonly dataSource: DataSource){}
+    protected constructor(readonly dataSource: T){}
 
     private getFlatValues(records: number, record: DataRecordPersist): any[]{
 
@@ -44,19 +44,7 @@ export class SqlGenerator {
 
     }
 
-    createColumnDefinition(column: DataColumnDefinition): string{
-
-        const size = 'size' in column ? `(${column.size})` : '';
-
-        return [
-            column.name,
-            `${this.dataSource.getClosestType(column.type)}${size}`,
-            column.primaryKey === true ? 'PRIMARY KEY' : null,
-            column.isAutoIncrement === true ? 'AUTOINCREMENT' : null,
-            column.notNull === true ? 'NOT NULL' : null,
-        ].filter(p => !!p).join(' ');
-
-    }
+    abstract createColumnDefinition(column: DataColumnDefinition): string;
 
     createTableStatement(table: DataTableDefinition): string{
 
@@ -72,6 +60,7 @@ export class SqlGenerator {
         const records = record.records || 1;
         const pairs = [];
         const keyValues = [];
+        let keyCounter = 0;
 
         if(records !== 1) {
             throw `Multiple deletes not supported`;
@@ -80,6 +69,11 @@ export class SqlGenerator {
         for(let name in record.keys){
             pairs.push(`${name} = ${placeHolder}`);
             keyValues.push(record.keys[name]);
+            keyCounter++;
+        }
+
+        if(keyCounter == 0) {
+            throw new Error(`No keys on DELETE statement`);
         }
 
         return {
@@ -111,16 +105,19 @@ export class SqlGenerator {
             throw `Multiple updates not supported`;
         }
 
-        if(!record.keys || record.keys.length === 0) {
-            throw `Non keyed updates not supported`;
-        }
-
         const keyPairs: string[] = [];
         const pairs = record.columns.map(name => `${name} = ${placeHolder}`);
+        let keyCount = 0;
+
 
         for(let name in record.keys){
             keyPairs.push(`${name} = ${placeHolder}`);
             flatValues.push(record.keys[name]);
+            keyCount++;
+        }
+
+        if(keyCount == 0) {
+            throw `Updates with no key values not supported`;
         }
 
         return {

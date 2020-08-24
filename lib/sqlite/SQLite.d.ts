@@ -1,6 +1,7 @@
 import { Database, RunResult, Statement } from "sqlite3";
 import { DataColumnType, DataSource, DataTableDefinition, EntityMapper } from "../DataSource";
 import { SchemaOf } from "layer-validation";
+import { SQLiteSqlGenerator } from "./SQLiteSqlGenerator";
 export interface SQLiteConfig {
     callback?: () => void;
     echoSQL?: boolean;
@@ -10,6 +11,7 @@ export declare class SQLite implements DataSource {
     readonly config: SQLiteConfig;
     readonly driverName = "sqlite";
     readonly db: Database;
+    readonly sqlGenerator: SQLiteSqlGenerator;
     constructor(path: string, config?: SQLiteConfig);
     private sqlOut;
     getClosestType(type: DataColumnType): string;
