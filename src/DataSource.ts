@@ -90,7 +90,7 @@ export function mapperToEntity<T>(original: any, schema: SchemaOf<T>): T{
 
     for(let name in data){
 
-        const isRequired = schema.required && schema.required.indexOf(name) >= 0;
+        const isRequired = schema.required instanceof Array && schema.required.indexOf(name) >= 0;
         const schemaType = schema.properties ? schema.properties[name].type || null : null;
         const canBeNull =  schemaType? schemaType === "null" || schemaType.indexOf('null') >= 0 : true;
 

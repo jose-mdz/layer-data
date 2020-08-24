@@ -80,6 +80,7 @@ describe(`sqlite/SQLite`, function () {
 
     it('should insert a non-autoincrement record', function () {
         // TODO: Implement
+
     });
 
     it('should update a record', async function () {
@@ -175,22 +176,6 @@ describe(`sqlite/SQLite`, function () {
 
         const all = await repo.getAll();
         assert.strictEqual(all.length, 0);
-    });
-
-    it('should echo SQL on logs if config allows', function () {
-        // TODO: Implement
-    });
-
-    it('should read multiple records', function () {
-
-    });
-
-    it('should update multiple records', function () {
-
-    });
-
-    it('should delete multiple records', function () {
-        
     });
 
 });
