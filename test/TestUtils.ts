@@ -14,7 +14,7 @@ export function randomWords(count: number = 5, length_min: number = 10, length_m
     return times(count, () => randomWord(randomInt(length_min, length_max || length_min))).join(' ');
 }
 
-function times(n: number, callback: (i: number) => void): any[] {
+export function times(n: number, callback: (i: number) => void): any[] {
 
     if(isNaN(n) || !isFinite(n) || n <= 0) {
         return [];

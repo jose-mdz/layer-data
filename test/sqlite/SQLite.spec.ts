@@ -1,42 +1,14 @@
 import {assert} from 'chai';
 import {SQLite} from "../../src/sqlite/SQLite";
 import * as fs from "fs";
-import {SchemaOf} from "layer-validation";
-import {DataSource, EntityMapper} from "../../src/DataSource";
 import {MigrationManager} from "../../src/MigrationManager";
-import {EntityRepository} from "../../src/EntityRepository";
 import {Logger} from "layer-logging";
 import {randomWord} from "../TestUtils";
+import {PersonEntitySchema, PersonRepo} from "../PersonEntity";
 
 describe(`sqlite/SQLite`, function () {
 
-    interface PersonEntity{
-        id: number;
-        name: string;
-    }
-
     const single_migration = `res/schema/sqlite/single_migration`;
-
-    const PersonEntitySchema: SchemaOf<PersonEntity> = {
-        properties:{
-            "id": {type: "number"},
-            "name": {type: "string"},
-        },
-        required: ["id", "name"]
-    };
-
-    const PersonEntityMapper: EntityMapper<PersonEntity> = {
-        table: "person",
-        primaryKey: "id",
-        autoIncrement: "id"
-    };
-
-    class PersonRepo extends EntityRepository<PersonEntity>{
-        constructor(readonly db: DataSource){
-            super(db, PersonEntitySchema, PersonEntityMapper);
-        }
-    }
-
     let dbPath: string = `sqlite-tests.db`;
     let db: SQLite;
     let repo: PersonRepo;
