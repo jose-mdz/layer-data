@@ -1,4 +1,5 @@
 import {SchemaOf, SchemaValidator} from "layer-validation";
+import {JSONSchema4} from 'json-schema';
 
 export type DataColumnType =
     'BOOLEAN'   |
@@ -42,7 +43,37 @@ export interface EntityMapper<T>{
     autoIncrement?: string;
 }
 
-export function createRecordPersist<T>(data: T, schema: SchemaOf<T>, mapper: EntityMapper<T>): DataRecordPersist {
+export function getSchemaDefinition<T>(schema: SchemaOf<T>): JSONSchema4{
+
+    if(
+        !('properties' in schema) &&
+        !('definitions' in schema) &&
+        !('$ref' in schema)
+    ) return schema;
+
+    if(schema.properties){
+        return schema;
+
+    }else if('$ref' in schema && schema['$ref']){
+        const parts = schema['$ref'].split('/');
+        const name = parts[parts.length - 1];
+
+        if(
+            'definitions' in schema &&
+            schema.definitions &&
+            name in schema.definitions
+        ){
+            return schema.definitions[name];
+        }else{
+            throw `Can't find ${schema['$ref']} in definitions`;
+        }
+
+    }else{
+        throw "Can't find properties in schema";
+    }
+}
+
+export function createRecordPersist<T>(data: T, schemaDefs: SchemaOf<T>, mapper: EntityMapper<T>): DataRecordPersist {
 
     const table = mapper.table;
     const records = 1;
@@ -51,6 +82,8 @@ export function createRecordPersist<T>(data: T, schema: SchemaOf<T>, mapper: Ent
     const keys: any = {};
 
     keys[mapper.primaryKey] = (data as any)[mapper.primaryKey];
+
+    const schema = getSchemaDefinition(schemaDefs);
 
     for(let column in schema.properties){
 
@@ -82,8 +115,9 @@ export function assignAutoIncrement<T>(id: any, data: T, mapper: EntityMapper<T>
 
 }
 
-export function mapperToEntity<T>(original: any, schema: SchemaOf<T>): T{
+export function mapperToEntity<T>(original: any, schemaDefs: SchemaOf<T>): T{
 
+    const schema = getSchemaDefinition(schemaDefs);
     const validator = new SchemaValidator();
     const killList = [];
     const data = Object.assign({}, original);

@@ -1,11 +1,82 @@
 import {assert} from "chai";
-import {assignAutoIncrement, getMockDataSource, mapperToEntity} from "../../src/DataSource";
+import {assignAutoIncrement, getMockDataSource, getSchemaDefinition, mapperToEntity} from "../../src/DataSource";
 import {ThingEntity, ThingEntityMapper, ThingEntitySchema} from "../ThingEntity";
 import {randomWord} from "../TestUtils";
 import {SchemaOf} from "layer-validation";
 import {PersonEntityMapper, PersonEntitySchema} from "../PersonEntity";
 
 describe(`DataSource`, function () {
+
+    it('should bypass an empty schema', function(){
+        const schema: SchemaOf<ThingEntity> = {};
+        const def = getSchemaDefinition(schema);
+
+        assert.strictEqual(schema, def);
+    });
+
+    it('should bypass a schema with properties property', function(){
+        const schema: SchemaOf<ThingEntity> = {
+            properties: {
+                something: {type: "string"}
+            }
+        };
+        const def = getSchemaDefinition(schema);
+
+        assert.strictEqual(schema, def);
+    });
+
+    it('should find definition on schema definitions', function(){
+        const schema: SchemaOf<ThingEntity> = {
+            '$ref': '#/definitions/Something',
+            'definitions': {
+                'Something': {
+                    properties: {
+                        something: {type: "string"}
+                    }
+                }
+            }
+        };
+        const def = getSchemaDefinition(schema);
+
+        assert.strictEqual(schema.definitions!.Something, def);
+    });
+
+    it('should reject schema without $ref', function(){
+        const schema: SchemaOf<ThingEntity> = {
+            'definitions': {
+                'Something': {
+                    properties: {
+                        something: {type: "string"}
+                    }
+                }
+            }
+        };
+
+        assert.throws(() => getSchemaDefinition(schema));
+    });
+
+    it('should reject schema without definitions', function(){
+        const schema: SchemaOf<ThingEntity> = {
+            '$ref': '#/definitions/Something',
+        };
+
+        assert.throws(() => getSchemaDefinition(schema));
+    });
+
+    it('should reject schema without definition', function(){
+        const schema: SchemaOf<ThingEntity> = {
+            '$ref': '#/definitions/Something',
+            'definitions': {
+                'Else': {
+                    properties: {
+                        something: {type: "string"}
+                    }
+                }
+            }
+        };
+
+        assert.throws(() => getSchemaDefinition(schema));
+    });
 
     it('should map entities with null ', function () {
 
