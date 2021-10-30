@@ -1,4 +1,5 @@
 import { SchemaOf } from "layer-validation";
+import { JSONSchema4 } from 'json-schema';
 export declare type DataColumnType = 'BOOLEAN' | 'VARCHAR' | 'TEXT' | 'INTEGER' | 'FLOAT' | 'DATE' | 'DATETIME';
 export interface DataColumnDefinition {
     name: string;
@@ -30,9 +31,10 @@ export interface EntityMapper<T> {
     primaryKey: string;
     autoIncrement?: string;
 }
-export declare function createRecordPersist<T>(data: T, schema: SchemaOf<T>, mapper: EntityMapper<T>): DataRecordPersist;
+export declare function getSchemaDefinition<T>(schema: SchemaOf<T>): JSONSchema4;
+export declare function createRecordPersist<T>(data: T, schemaDefs: SchemaOf<T>, mapper: EntityMapper<T>): DataRecordPersist;
 export declare function assignAutoIncrement<T>(id: any, data: T, mapper: EntityMapper<T>): T;
-export declare function mapperToEntity<T>(original: any, schema: SchemaOf<T>): T;
+export declare function mapperToEntity<T>(original: any, schemaDefs: SchemaOf<T>): T;
 export interface DataSource {
     readonly driverName: string;
     getClosestType(type: DataColumnType): string;

@@ -135,7 +135,7 @@ export function mapperToEntity<T>(original: any, schemaDefs: SchemaOf<T>): T{
 
     killList.forEach(name => delete data[name]);
 
-    const valid = validator.isValid(data, schema);
+    const valid = validator.isValid(data, schemaDefs);
 
     if(typeof valid === 'string') {
         throw `[DATA] object does not match schema: ${valid}`
